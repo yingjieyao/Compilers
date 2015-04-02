@@ -36,16 +36,16 @@ map<string,int> M2Num;
 map<string,string> M2Str;
 map<string,int> ID;
 int IDcnt;
-#define FromSize 38
+#define KeySize 38
+#define FromSize KeySize
 
-
-string From[FromSize]={"func","bool","int","double","char","break",
+string From[KeySize]={"func","bool","int","double","char","break",
                     "continue","if","elsif","else","return","max","min","for",
                     "+","-","*","/","++","--","+=","-=","<",">","==",">=",
                     "<=","!=","&&","||","!","{","}","(",")","=",";",","
                 };
 
-string To[FromSize]={"FUNC","BOOL","INT","DOUBLE","CHAR","BREAK",
+string To[KeySize]={"FUNC","BOOL","INT","DOUBLE","CHAR","BREAK",
                     "CONTINUE","IF","ELSIF","ELSE","RETURN","MAX","MIN","FOR",
                     "PLUS","MINUS","MULTI","DIV","D_PLUS","D_MINUS","PLU_EQU","MINU_EQU",
                     "LT","GT","EQU","GE","LE","NE","AND","OR","NOT","L_GRACE","R_GRACE",
@@ -56,8 +56,8 @@ void Ini() {
     mapCnt=0;IDcnt=0;
     ID.clear();
     M2Num.clear(),M2Str.clear();
-    for(int i=0; i<FromSize; i++)M2Str[From[i]]=To[i];
-    for(int i=0; i<FromSize; i++)M2Num[From[i]]=i+1;
+    for(int i=0; i<KeySize; i++)M2Str[From[i]]=To[i];
+    for(int i=0; i<KeySize; i++)M2Num[From[i]]=i+1;
 }
 
 // get ID's id in table 
@@ -110,10 +110,6 @@ int isReal(string s) {
 
 /*
 * define error type here
-*
-*
-*
-*
 */
 
 void HandleError(int ErrorType){
