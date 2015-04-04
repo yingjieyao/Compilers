@@ -9,24 +9,65 @@
 #include <iostream>
 #include <map>
 #include <fstream>
-#include "tmp.cpp"
 using namespace std;
 #define acc 0x7fffffff
 #define pb push_back
 #define mp make_pair
-vector<vector<int> > Return;
+#define inf acc
+//action and goto table
+vector<vector<int> > action,go;
+// store each ID's number and no-ter's number
 map<string,int> Hash;
+// totoal number
+// action's number ==> edge
 int HashCnt,edge;
 int Tot;
+//all productions
+vector<pair<string,string> > production;
 
-
-int find(string first,string second){
-	return 0;
-	
-}
-void Handle(){
+void GetProduction(){
 	string s;
-	while(getline(cin,s)){
+	production.clear();
+	production.pb(mp("",""));
+	ifstream in("test6.grm");
+	int st=0;
+	while(getline(in,s)){
+		if(s[0]=='[')st++;
+		if(st==4)break;
+	}
+	while(getline(in,s)){
+		int len=s.length();
+		bool find=false;
+		string first="",second="";
+		for(int i=0;i<len;i++){
+			if(s[i]==' ')break;
+			first+=s[i];
+		}
+		for(int i=0;i<len;i++){
+			if(s[i]=='='&&s[i+1]=='>'){
+				int j=i+3;
+				while(j<len&&s[j]!=';'){
+					second+=s[j++];
+				}
+				break;
+			}
+		}
+		production.pb(mp(first,second));
+	}
+	in.close();
+}
+
+int GetProID(string first,string second){
+	int len=production.size();
+	for(int i=1;i<len;i++){
+		if(first==production[i].first&&second==production[i].second)return i;
+	}
+	return -inf;
+
+}
+void GetKey(ifstream &input){
+	string s;
+	while(getline(input,s)){
 		if(s=="</tr>")return;
 		string tmp="";
 		int len=s.length();
@@ -40,12 +81,12 @@ void Handle(){
 	Tot=HashCnt;
 }
 
-void FillTable(){
+void FillTable(ifstream &input){
 	string s;
 	vector<int> ans;
 	ans.clear();
-	getline(cin,s);
-	while(getline(cin,s)){
+	getline(input,s);
+	while(getline(input,s)){
 		int tmp=0;
 		int len=s.length();
 		if(s=="</tr>")break;
@@ -74,43 +115,54 @@ void FillTable(){
 				first+=s[st++];
 			}
 			st+=14;
-			while(st<len&&s[st]!='<'&&s[st+1]!='/'){
+			while(st<len-5){
 				if(s[st]=='&'&&s[st+1]=='n'&&s[st+2]=='b'){
 					second+=" ";
 					st+=6;
 				}else second+=s[st++];
 			}
-			cout<<"Production  "<<first<<" => "<<second<<endl;
-			int ret=find(first,second);
-			ans.pb(ret);
+			int ret=GetProID(first,second);
+			if(ret==-inf){
+				cout<<s<<endl;
+				cout<<"Production  "<<first<<" => "<<second<<endl;
+				cout<<"ERROR"<<endl;
+				return;
+			}
+			else ans.pb(-ret);
 		}else ans.pb(0);
+		if(ans.size()>edge){
+			action.pb(ans);
+			ans.clear();
+		}
 	}
-	Return.pb(ans);
+	go.pb(ans);
 }
-
 int main(){
-	//freopen("out.txt","w",stdout);
-	freopen("LALR1.txt","r",stdin);
+	GetProduction();
+	ifstream input("LALR1.txt");
 	string s;
 	int cnt=0;
 	HashCnt=0;
-	Return.clear();
 	Hash.clear();
-	while(getline(cin,s)){
+	while(getline(input,s)){
 		if(s=="</table>")break;
-		if(s=="<tr>"){
+		if(s=="<tr>")
 			cnt++;
-		}
 		if(cnt==2){
-			Handle();
+			GetKey(input);
 		}else if(cnt>2){
-			FillTable();
+			FillTable(input);
 		}
 	}
+	ofstream output("out.txt");
+	int size=action.size();
+	for(int i=0;i<size;i++){
+		for(int j=0;j<action[i].size();j++){
+			output<<action[i][j]<<' ';
+		}
+		output<<endl;
+	}
+	output.close();
+	input.close();
 	return 0;
 }
-/*
- *must tran the htm file to txt to delete \r 
-	need to tran in production first
- * */
-

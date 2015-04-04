@@ -4,9 +4,7 @@
 #include<cstdio>
 #include<string>
 using namespace std;
-
-
-void  Tran(){
+int main(){
 	freopen("LALR.htm","r",stdin);
 	freopen("LALR1.txt","w",stdout);
 	char c;

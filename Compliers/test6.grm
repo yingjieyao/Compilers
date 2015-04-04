@@ -59,7 +59,6 @@ elsif
 else
 [文法起始符]
 Yao'
-
 [生成式]
 Yao' => Yao;
 Yao => Yao Func;

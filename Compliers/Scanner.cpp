@@ -39,6 +39,11 @@ int IDcnt;
 #define KeySize 38
 #define FromSize KeySize
 
+string key[KeySize]={"id","char","bool","int","double","call","return",
+			  "Integer","Double","Char","Bool","func","for","semic",
+			  ",","(",")","{","}","+","-","*","/","=","and","not","or",
+			  ">","<",">=","<=","==","true","false","if","elsif","else"
+};
 string From[KeySize]={"func","bool","int","double","char","break",
                     "continue","if","elsif","else","return","max","min","for",
                     "+","-","*","/","++","--","+=","-=","<",">","==",">=",
@@ -57,7 +62,7 @@ void Ini() {
     ID.clear();
     M2Num.clear(),M2Str.clear();
     for(int i=0; i<KeySize; i++)M2Str[From[i]]=To[i];
-    for(int i=0; i<KeySize; i++)M2Num[From[i]]=i+1;
+    for(int i=0; i<KeySize; i++)M2Num[key[i]]=i;
 }
 
 // get ID's id in table 
@@ -170,46 +175,42 @@ string doubleto2bit(string s) {
 
 // output the answer
 // need to change to store in vector
-vector<pair<int,int> > Word;
+vector<pair<int,string> > Word;
 int Column;
 void Print(string &s) {
     int type=isReal(s);
     if(isKey(s)) {
-    	Word.pb(mp(M2Num[s],0));
+    	Word.pb(mp(M2Num[s],s));
     }
     else if(isInteger(s)){
-    	Word.pb(mp(FromSize+1,intto10bit(s)));
+    	Word.pb(mp(M2Num["Integer"],"Integer"));
     }
     else if(type==isreal){
-    	Word.pb(mp(FromSize+2,0));//?????
+    	Word.pb(mp(M2Num["Double"],"Double"));//?????
     }
     else if(type==dotError&&s.length()>1){
         cout<<s<<' '<<"Dot ERROR "<<Column<<endl;
     }else{
         int len=s.length();
-        if(s[0]==s[len-1]&&s[0]=='\"'){
-        	Word.pb(mp(FromSize+3,0));//????
-        }
-        else {
             if(!isalpha(s[0])&&s[0]!='_'){
                 cout<<s<<' '<<"ID ERROR "<<Column<<endl;
             }else{
-            	Word.pb(mp(FromSize+4,getId(s)));
+            	Word.pb(mp(M2Num["id"],"id"));
                 // cout<<s<<' '<<"ID"<<endl;
                 MAP[mapCnt++]=Map(s,0,0);
             }
-        }
     }
     s="";
 }
-vector<pair<int,int> > Scanner() {
+vector<pair<int,string> > Scanner() {
     // freopen("in.txt","r",stdin);
     // freopen("out.txt","w",stdout);
+	ifstream input("in.txt");
     Ini();
     string s;
     Column=0;
     Word.clear();
-    while(getline(cin,s)!=NULL) {
+    while(getline(input,s)!=NULL) {
         string tmp="";
         Column++;
         for(int i=0; s[i]; i++) {
