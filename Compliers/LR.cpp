@@ -158,6 +158,8 @@ int Parse(){
 	int cnt=0;
 	HashCnt=0;
 	Hash.clear();
+	for(int i=0;i<action.size();i++)action[i].clear();
+	for(int i=0;i<go.size();i++)go[i].clear();
 	while(getline(input,s)){
 		if(s=="</table>")break;
 		if(s=="<tr>")

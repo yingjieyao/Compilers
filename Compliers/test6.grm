@@ -1,3 +1,4 @@
+
 [·ÇÖÕ½á·û]
 Yao
 Yao'
@@ -75,13 +76,13 @@ Func => func id ( Funclist ) { D L };
 Funclist => Funclist semic Varlist Type;
 Funclist => Varlist Type;
 Funclist => ;
-L => L semic S;
-L => S semic;
+L => L semic S semic;
+L => S;
 L => ;
 S => Left = Right;
 Left => Varlist;
 Right => E , Right;
-Right => E semic;
+Right => E;
 E => T;
 E => E + T;
 E => E - T;
@@ -108,7 +109,7 @@ B => E <= E;
 B => E == E;
 B => true;
 B => false;
-S => call id ( Funclist );
+S => call id ( Varlist );
 S => return E;
 S => for E semic B semic E { L };
 S => for semic B semic { L };

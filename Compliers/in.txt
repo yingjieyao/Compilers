@@ -1,3 +1,9 @@
-func main(a,b,c int ) { 
-	for semic semic {} semic
+func main() { 
+	int a,b,c,d semic
+	for semic semic {
+		a=a+1  semic
+		b=b+1 semic
+	} semic
+	if true {
+	} semic 
 }
