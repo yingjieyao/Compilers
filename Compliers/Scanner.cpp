@@ -36,13 +36,13 @@ map<string,int> M2Num;
 map<string,string> M2Str;
 map<string,int> ID;
 int IDcnt;
-#define KeySize 38
+#define KeySize 39
 #define FromSize KeySize
 
 string key[KeySize]={"id","char","bool","int","double","call","return",
 			  "Integer","Double","Char","Bool","func","for","semic",
 			  ",","(",")","{","}","+","-","*","/","=","and","not","or",
-			  ">","<",">=","<=","==","true","false","if","elsif","else"
+			  ">","<",">=","<=","==","true","false","if","elsif","else","$"
 };
 string From[KeySize]={"func","bool","int","double","char","break",
                     "continue","if","elsif","else","return","max","min","for",
@@ -218,7 +218,7 @@ vector<pair<int,string> > Scanner() {
                 if(tmp.length())Print(tmp);
             } else if(s[i]=='('||s[i]==')'||
                       s[i]==','||s[i]==';'||s[i]=='['||s[i]==']'||s[i]=='\''||s[i]=='{'||
-                      s[i]=='}') {
+                      s[i]=='}'||s[i]=='$') {
                 if(tmp.length()) Print(tmp);
                 tmp="";
                 tmp=tmp+s[i];
@@ -305,5 +305,6 @@ vector<pair<int,string> > Scanner() {
             }
         }
     }
+	Word.pb(mp(M2Num["$"],"$"));
     return Word;
 }

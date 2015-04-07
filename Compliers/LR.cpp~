@@ -193,8 +193,7 @@ void Init(){
 }
 
 inline void PrintProduction(const int &index){
-	int len=production[index].second.length();
-	cout<<"( "<<index<<" ) "<<production[index].first<<" => "<<(len==0?"ε":production[index].second)<<endl;
+	cout<<"( "<<index<<" ) "<<production[index].first<<" => "<<production[index].second<<endl;
 }
 
 inline int GetId(const string  &s){

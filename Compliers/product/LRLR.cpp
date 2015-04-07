@@ -137,13 +137,25 @@ void FillTable(ifstream &input){
 	}
 	go.pb(ans);
 }
+void deal(){
+	ifstream in("LALR.htm");
+	ofstream out("LALR1.txt");
+	string c;
+	while(in>>c){
+		out<<c;
+	}
+	out.close();
+	in.close();
+}
 int main(){
 	GetProduction();
-	ifstream input("LALR1.txt");
+	deal();
 	string s;
 	int cnt=0;
 	HashCnt=0;
 	Hash.clear();
+
+	ifstream input("LALR1.txt");
 	while(getline(input,s)){
 		if(s=="</table>")break;
 		if(s=="<tr>")
