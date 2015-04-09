@@ -1,9 +1,10 @@
-func main() { 
-	int a,b,c,d semic
-	for semic semic {
-		a=a+1  semic
-		b=b+1 semic
-	} semic
-	if true {
-	} semic 
+func Ain() { 
+	if a<=b {
+		a=1+b+1 semic
+	}elsif a>b {
+		b=1+2+1 semic
+	}else{
+		c=2 semic
+	}semic
 }
+

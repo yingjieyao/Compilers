@@ -57,6 +57,7 @@ void GetProduction(){
 				break;
 			}
 		}
+		//cout<<"get "<<first<<" => "<<second<<endl;
 		production.pb(mp(first,second));
 	}
 	in.close();

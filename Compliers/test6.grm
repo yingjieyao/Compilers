@@ -1,4 +1,3 @@
-
 [·ÇÖÕ½á·û]
 Yao
 Yao'
@@ -8,6 +7,7 @@ Varlist
 D
 Define
 Funclist
+Funclist2
 L
 B
 S
@@ -76,13 +76,15 @@ Func => func id ( Funclist ) { D L };
 Funclist => Funclist semic Varlist Type;
 Funclist => Varlist Type;
 Funclist => ;
-L => L semic S semic;
-L => S;
+L => S semic L;
 L => ;
 S => Left = Right;
 Left => Varlist;
 Right => E , Right;
 Right => E;
+Funclist2 => Varlist;
+Funclist2 => ;
+E => call Varlist ( Funclist2 );
 E => T;
 E => E + T;
 E => E - T;
@@ -95,7 +97,6 @@ F => Integer;
 F => Bool;
 F => Double;
 F => Char;
-E => call id ( Varlist );
 B => R;
 B => B or R;
 R => Y;
@@ -109,9 +110,8 @@ B => E <= E;
 B => E == E;
 B => true;
 B => false;
-S => call id ( Varlist );
 S => return E;
-S => for E semic B semic E { L };
+S => for S semic B semic S { L };
 S => for semic B semic { L };
 S => for semic semic { L };
 S => if B { L } elsif B { L } else { L };

@@ -1,3 +1,5 @@
+//used to describe basic data structure 
+// author : Yogurt 
 #include <cstring>
 #include <string>
 #include <cstdio>
