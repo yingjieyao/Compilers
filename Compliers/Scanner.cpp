@@ -26,8 +26,7 @@ struct Map {
         addr=_addr;
     }
 };
-Map MAP[maxSize];
-int mapCnt;
+vector<Map> MAP;
 
 //key id need to insert into Trie
 
@@ -46,10 +45,10 @@ string key[KeySize]={"id","char","bool","int","double","call","return",
 };
 
 void Ini() {
-    mapCnt=0;IDcnt=0;
+    IDcnt=0;
+	MAP.clear();
     ID.clear();
     M2Num.clear(),M2Str.clear();
- //   for(int i=0; i<KeySize; i++)M2Str[From[i]]=To[i];
     for(int i=0; i<KeySize; i++)M2Num[key[i]]=i;
 }
 
@@ -185,15 +184,15 @@ void Print(string &s) {
             }else{
             	Word.pb(mp(M2Num["id"],"id"));
                 // cout<<s<<' '<<"ID"<<endl;
-                MAP[mapCnt++]=Map(s,0,0);
+                MAP.pb(Map(s,0,0));
             }
     }
     s="";
 }
-vector<pair<int,string> > Scanner() {
+vector<pair<int,string> > Scanner(char inputfile[]) {
     // freopen("in.txt","r",stdin);
     // freopen("out.txt","w",stdout);
-	ifstream input("in.txt");
+	ifstream input(inputfile);
     Ini();
     string s;
     Column=0;

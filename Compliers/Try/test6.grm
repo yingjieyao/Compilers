@@ -1,0 +1,120 @@
+[非终结符]
+Yao
+Yao'
+Func
+Type
+Varlist
+D
+Define
+Funclist
+Funclist2
+L
+B
+S
+Left
+Right
+E
+T
+F
+R
+Y
+[终结符]
+id
+char
+bool
+int
+double
+call
+return
+Integer
+Double
+Char
+Bool
+func
+for
+semic
+,
+(
+)
+{
+}
++
+-
+*
+/
+=
+and
+not
+or
+>
+<
+>=
+<=
+==
+true
+false
+if
+elsif
+else
+[文法起始符]
+Yao'
+[生成式]
+Yao' => Yao;
+Yao => Yao Func;
+Yao => Func;
+Type => int;
+Type => double;
+Type => char;
+Type => bool;
+Varlist => Varlist , id;
+Varlist => id;
+D => Define semic;
+D => ;
+Define => Define semic Type Varlist;
+Define => Type Varlist;
+Func => func id ( Funclist ) { D L };
+Funclist => Funclist semic Varlist Type;
+Funclist => Varlist Type;
+Funclist => ;
+L => S semic L;
+L => ;
+S => Left = Right;
+Left => Varlist;
+Right => E , Right;
+Right => E;
+Funclist2 => Varlist;
+Funclist2 => ;
+E => call Varlist ( Funclist2 );
+E => T;
+E => E + T;
+E => E - T;
+T => F;
+T => T * F;
+T => T / F;
+F => ( E );
+F => id;
+F => Integer;
+F => Bool;
+F => Double;
+F => Char;
+B => R;
+B => B or R;
+R => Y;
+R => R and Y;
+Y => ( B );
+B => not Y;
+B => E < E;
+B => E > E;
+B => E >= E;
+B => E <= E;
+B => E == E;
+B => true;
+B => false;
+S => return E;
+S => for S semic B semic S { L };
+S => for semic B semic { L };
+S => for semic semic { L };
+S => if B { L } elsif B { L } else { L };
+S => if B { L } elsif B { L };
+S => if B { L } else { L };
+S => if B { L };

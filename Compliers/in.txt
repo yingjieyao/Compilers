@@ -1,10 +1,38 @@
-func Ain() { 
+func main() { 
 	if a<=b {
 		a=1+b+1 semic
 	}elsif a>b {
 		b=1+2+1 semic
 	}else{
 		c=2 semic
+	} semic
+	a=a+1+2+3+4+5+6 semic
+	for i=1 semic i<=100 semic i=i+1 {
+		sum=sum+i semic
 	}semic
+	return  0 semic
+}
+
+func Ain() { 
+	int a,b,c,d semic
+	double e,f,g,h semic
+    if (a<b) and (c>d) {
+		a=a+1 semic
+	} semic
+	for semic a<=100 semic {
+		b=b+1 semic
+	}semic
+	return a+100 semic
+}
+
+func Bin(funca int semic fund double) { 
+	int a semic
+	if (a<b) or (a>d) {
+		b=b+1 semic
+	}semic
+	for semic semic {
+		a=1 semic
+	}semic
+	return a semic
 }
 

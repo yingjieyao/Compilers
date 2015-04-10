@@ -30,7 +30,8 @@ int Tot;
 //all productions
 vector<pair<string,string> > production;
 
-void GetProduction(){
+//get production from test6.grm and store them in production
+inline void GetProduction(){
 	string s;
 	production.clear();
 	production.pb(mp("",""));
@@ -62,8 +63,8 @@ void GetProduction(){
 	}
 	in.close();
 }
-
-int GetProID(string first,string second){
+//get production's id
+inline int GetProID(const string &first,const string &second){
 	int len=production.size();
 	for(int i=1;i<len;i++){
 		if(first==production[i].first&&second==production[i].second)return i;
@@ -71,7 +72,11 @@ int GetProID(string first,string second){
 	return -inf;
 
 }
-void GetKey(ifstream &input){
+//get all keys from LALR1.txt
+//store them in Hash
+//0..edge 
+//edge+1 .. tot
+inline void GetKey(ifstream &input){
 	string s;
 	while(getline(input,s)){
 		if(s=="</tr>"){
@@ -91,8 +96,9 @@ void GetKey(ifstream &input){
 		}
 	}
 }
-
-void FillTable(ifstream &input){
+// fill the action and goto table
+// from LALR1.txt
+inline void FillTable(ifstream &input){
 	string s;
 	vector<int> ans;
 	ans.clear();
@@ -152,7 +158,8 @@ void FillTable(ifstream &input){
 	}
 	go.pb(ans);
 }
-int Parse(){
+// start Parse program
+inline int Parse(){
 	GetProduction();
 	ifstream input("LALR1.txt");
 	string s;
@@ -187,31 +194,34 @@ int Parse(){
 }
 //initilalize 
 //
-void Init(){
+inline void Init(){
 	while(!s1.empty())s1.pop();
 	while(!s2.empty())s2.pop();
 	s1.push(0);
 	s2.push(edge);
 	Parse();
 }
-
+// output the production used to reduce
 inline void PrintProduction(const int &index){
 	int len=production[index].second.length();
 	cout<<"( "<<index<<" ) "<<production[index].first<<" => "<<(len==0?"ε":production[index].second)<<endl;
 }
-
+//get key's id
 inline int GetId(const string  &s){
 	string tmp="";
 	tmp+=s;
 	if(Hash.find(tmp)==Hash.end())return -1;
 	return Hash[tmp];
 }
+//get non terminal's id
 inline int GetNonTID(const string &s){
 	return Hash[s]-edge-1;
 }
+//error handle
 inline void HandelError(){
 	cout<<"ERROR"<<endl;
 }
+//count number in production's right
 inline int CountEmp(const string &s){
 	int ans=1;
 	int len=s.length();
@@ -221,7 +231,7 @@ inline int CountEmp(const string &s){
 	if(s.length()==0)return 0;
 	return ans;
 }
-
+//main function of parse program
 inline void Gao(const vector<int> &s){
 	int len=s.size();
 	int i=0;
@@ -256,21 +266,41 @@ inline void Gao(const vector<int> &s){
 			cout<<"Accepted"<<endl;
 			return;
 		}else {
-			HandelError();
-			return;
+		//	HandelError();
+			//return;
+	        id=Hash["semic"];
+			NextOp=action[TopState][id];
+			if(NextOp<0){
+				cout<<"need semic here but find other marks"<<endl;
+				PrintProduction(-NextOp);
+				int cnt=CountEmp(production[-NextOp].second);
+				while(cnt--){
+					s1.pop(),s2.pop();
+				}
+				TopState=s1.top();
+				string spf=production[-NextOp].first;
+				id=GetId(spf);
+				s2.push(id);
+				id=GetNonTID(spf);
+				s1.push(go[TopState][id]);
+				i--;
+			}
+	//		else return;
+			//HandelError();
+			//return;
 		}
 	}
 }
 
-int main(){
+int main(int argc,char *args[]){
 	vector<int> Out;
-	vector<pair<int,string> > Ans=Scanner();
+	vector<pair<int,string> > Ans=Scanner(args[1]);
 	int len=Ans.size();
 	Out.clear();
 	for(int i=0;i<len;i++){
 		Out.pb(Ans[i].first);
+		cout<<Ans[i].first<<endl;
 	}
-
 	Init();
 	Gao(Out);
 	return 0;
