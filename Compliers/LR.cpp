@@ -43,7 +43,6 @@ inline void GetProduction(){
 	}
 	while(getline(in,s)){
 		int len=s.length();
-		bool find=false;
 		string first="",second="";
 		for(int i=0;i<len;i++){
 			if(s[i]==' ')break;
@@ -151,7 +150,7 @@ inline void FillTable(ifstream &input){
 			}
 			else ans.pb(-ret);
 		}else ans.pb(0);
-		if(ans.size()>edge){
+		if(ans.size()>(size_t)edge){
 			action.pb(ans);
 			ans.clear();
 		}
@@ -166,8 +165,8 @@ inline int Parse(){
 	int cnt=0;
 	HashCnt=0;
 	Hash.clear();
-	for(int i=0;i<action.size();i++)action[i].clear();
-	for(int i=0;i<go.size();i++)go[i].clear();
+	for(size_t i=0;i<action.size();i++)action[i].clear();
+	for(size_t i=0;i<go.size();i++)go[i].clear();
 	while(getline(input,s)){
 		if(s=="</table>")break;
 		if(s=="<tr>")
@@ -178,7 +177,8 @@ inline int Parse(){
 			FillTable(input);
 		}
 	}
-	/*debug
+	/*
+	 * debug
 	ofstream output("out.txt");
 	int size=action.size();
 	for(int i=0;i<size;i++){
@@ -242,6 +242,7 @@ inline void Gao(const vector<int> &s){
 			HandelError();
 			return;
 		}
+
 		int NextOp=action[TopState][id];
 		if(NextOp>0&&NextOp!=Acc){
 			s2.push(s[i]);
@@ -266,9 +267,8 @@ inline void Gao(const vector<int> &s){
 			cout<<"Accepted"<<endl;
 			return;
 		}else {
-		//	HandelError();
-			//return;
-	        id=Hash["semic"];
+		//	return;
+	        id=GetId("semic");
 			NextOp=action[TopState][id];
 			if(NextOp<0){
 				cout<<"need semic here but find other marks"<<endl;
@@ -283,7 +283,13 @@ inline void Gao(const vector<int> &s){
 				s2.push(id);
 				id=GetNonTID(spf);
 				s1.push(go[TopState][id]);
-				i--;
+				s2.push(GetId("semic"));
+				TopState=s1.top();
+				id=GetId("semic");
+				NextOp=action[TopState][id];
+				s1.push(NextOp);
+				s2.push(id);
+				
 			}
 	//		else return;
 			//HandelError();
@@ -294,12 +300,12 @@ inline void Gao(const vector<int> &s){
 
 int main(int argc,char *args[]){
 	vector<int> Out;
+	char s[]="test.txt";
 	vector<pair<int,string> > Ans=Scanner(args[1]);
 	int len=Ans.size();
 	Out.clear();
 	for(int i=0;i<len;i++){
 		Out.pb(Ans[i].first);
-		cout<<Ans[i].first<<endl;
 	}
 	Init();
 	Gao(Out);

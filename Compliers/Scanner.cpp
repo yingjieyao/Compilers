@@ -178,7 +178,6 @@ void Print(string &s) {
     else if(type==dotError&&s.length()>1){
         cout<<s<<' '<<"Dot ERROR "<<Column<<endl;
     }else{
-        int len=s.length();
             if(!isalpha(s[0])&&s[0]!='_'){
                 cout<<s<<' '<<"ID ERROR "<<Column<<endl;
             }else{

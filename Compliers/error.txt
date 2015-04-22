@@ -1,0 +1,7 @@
+func main(){
+	int a,b,c semic
+	for semic semic {
+	}semic
+	if a<b {
+	}semic
+}
