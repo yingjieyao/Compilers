@@ -10,51 +10,25 @@
 using namespace std;
 #define pb push_back
 #define mp make_pair
-/*
- * store the production
- */
-vector<pair<string,string> > production;
-/* 
- * store the production with integer
- */
-vector<vector<int> > Pro;
-/*
- * from to mark to integer
- */
+vector<pair<string,vector<string> > > production;
+vector<pair<string,vector<string> > > projects;
 map<string,int> Hash;
-/*
- * from integer to marks
- */
-map<int,string> DeHash;
-/*
- * the firstset of all marks
- */
 vector<set<int> > FIRST;
-/*
- * key's number
- */
+vector<vector<int> > action,go;
 int keycnt;
-/*
- * the edge of terminal and non-terminal mark
- */
 int edge;
 inline void ini(){
 	Hash.clear();
-	DeHash.clear();
 	keycnt=1;
-	int len=Pro.size();
-	for(int i=0;i<len;i++){
-		Pro[i].clear();
-	}
-	len=FIRST.size();
+	action.clear();
+	go.clear();
+	int len=FIRST.size();
 	for(int i=0;i<len;i++){
 		FIRST[i].clear();
 	}
 }
-/*
- * split string by space 
- * and return the vector
- */
+ // split string by space 
+ // and return the vector
 inline vector<string> split(const string &s){
 	vector<string> ans;
 	ans.clear();
@@ -69,109 +43,32 @@ inline vector<string> split(const string &s){
 			tmp+=s[i];
 		}
 	}
-	ans.pb(tmp);
+	if(tmp.length())ans.pb(tmp);
 	return ans;
 }
-// is or not terminal mark
-inline bool isTer(const int &t){
-	if(t<edge)return false;
-	return true;
-}
-// is or not non-terminal mark
-inline bool isNonTer(const int &t){
-	if(t<edge)return true;
-	return false;
-}
-/* get first set
- * should be store in vector<set<int> > First
- * and there will be another function 
- *	which calc the first(a),where a in (V union T)*
- */
-inline set<int> First(const int &S){
-	set<int> ans;
-	ans.clear();
-	int st=S;
-	if(isTer(st)){
-		ans.insert(st);
-		FIRST[S]=ans;
-		return ans;
-	}
-	set<int> tmp,tmp2;
-	tmp.clear();
-	tmp2.clear();
-	int TotProSize=Pro.size();
-	for(int i=0;i<TotProSize;i++){
-		if(Pro[i].size()>=2&&Pro[i][0]==st){
-			if(isTer(Pro[i][1]))ans.insert(Pro[i][1]);//5
-			else if(isNonTer(Pro[i][1])){//7
-				tmp2.insert(First(Pro[i][1]).begin(),First(Pro[i][1]).end());
-				tmp2.erase(0);
-				tmp.insert(tmp2.begin(),tmp2.end());
-				ans.insert(tmp.begin(),tmp.end());
-			}
-			if(Pro[i][1]==0&&Pro[i].size()==2)ans.insert(0);//5 4
-		}
-	}
-	FIRST[S]=ans;
-	return ans;
-}
-/* 
- * this is another function as described above
- */
-inline set<int> First(const vector<int> &S){
-	set<int> ans,tmp;
-	vector<set<int> > TFIR;
-	int size=TFIR.size();
-	for(int i=0;i<size;i++)TFIR.clear();
-	ans.clear();
-	int len=S.size();
-	for(int i=0;i<len;i++){
-		tmp.insert(FIRST[S[i]].begin(),FIRST[S[i]].end());
-		tmp.erase(0);
-		TFIR.pb(tmp);
-	}
-	tmp=TFIR[0];
-	ans.insert(tmp.begin(),tmp.end());
-	int st=0;
-	while(TFIR[st].find(0)!=TFIR[st].end()&&st<size-1){
-		ans.insert(TFIR[st+1].begin(),TFIR[st+1].end());
-		st++;
-	}
-	if(st==len&&TFIR[st].find(0)!=TFIR[st].end())
-		ans.insert(0);
-	return ans;
-}
-/*
- * just for read all the productions from files
-*/
-inline void GetProduction(){
+// just for read all the productions from files
+inline void GetProduction(){/*{{{*/
 	string s;
 	production.clear();
-	production.pb(mp("",""));
-	ifstream in("test6.grm");
-	int st=0;
-	while(getline(in,s)){
-		if(s[0]=='['){
-			if(st==1)edge=keycnt;
-			st++;
-		}else{
-			int size=s.length();
-			s=s.substr(0,size-1);
-			if(Hash.find(s)==Hash.end()){
-				Hash[s]=keycnt++;
-			    DeHash[keycnt-1]=s;
-			}
-			continue;
-		}
-
-		if(st==4)break;
+	vector<string> T;
+	T.clear();
+	production.pb(mp("",T));
+	ifstream in("LR.txt");
+	getline(in,s);
+	T=split(s);
+	size_t len=T.size();
+	for(size_t i=0;i<len;i++){
+		Hash[T[i]]=keycnt++;
 	}
-	vector<int> tmp;
-	tmp.clear();
+	edge=len;
+	getline(in,s);
+	len=T.size();
+	for(size_t i=0;i<len;i++){
+		Hash[T[i]]=keycnt++;
+	}
 	// get production
 	while(getline(in,s)){
 		//cout<<s<<endl;
-		tmp.clear();
 		int len=s.length();
 		string first="",second="";
 		for(int i=0;i<len;i++){
@@ -187,30 +84,218 @@ inline void GetProduction(){
 				break;
 			}
 		}
-		production.pb(mp(first,second));
-		tmp.pb(Hash[first]);
-		//cout<<Hash[first]<<" => ";
-		vector<string> T=split(second);
-		len=T.size();
-		for(int i=0;i<len;i++){
-			tmp.pb(Hash[T[i]]);
-			//cout<<Hash[T[i]]<<' ';
-		}
-		//cout<<endl;
-		Pro.pb(tmp);
+		vector<string> right=split(second);
+		production.pb(mp(first,right));
 	}
 	in.close();
+}/*}}}*/
+//get all the projects
+void GetProjects(){
+	size_t len=production.size();
+	for(size_t i=1;i<len;i++){
+		string left=production[i].first;
+		vector<string> ans=(production[i].second);
+		size_t size=ans.size();
+		
+		vector<string> newright;
+		newright.clear();
+		newright.pb(".");
+		for(size_t j=0;j<size;j++){
+			newright.pb(ans[j]);
+		}
+		projects.pb(mp(left,newright));
+		newright.clear();
+
+		vector<string> tmp;
+		tmp.clear();
+		for(size_t j=0;j<size;j++){
+			tmp.clear();
+
+			for(size_t t=0;t<=j;t++)tmp.pb(ans[t]);
+			tmp.pb(".");
+			
+			for(size_t t=j+1;t<size;t++)tmp.pb(ans[t]);
+			
+			projects.pb(mp(left,tmp));
+		}
+	}
+}
+void PrintProjects(){
+	size_t len=projects.size();
+	for(size_t i=0;i<len;i++){
+		cout<<projects[i].first<<' ';
+	
+		int len1=projects[i].second.size();
+		for(int j=0;j<len1;j++){
+			cout<<projects[i].second[j]<<' ';
+		}
+		
+		cout<<endl;
+	}
+}
+//
+void PrintProduction(){/*{{{*//*{{{*/
+	size_t len=production.size();
+	for(size_t i=0;i<len;i++){
+		cout<<production[i].first<<" => ";
+		int len2=production[i].second.size();
+		for(int j=0;j<len2;j++){
+			cout<<production[i].second[j]<<" ";
+		}
+		cout<<endl;
+	}
+}/*}}}*//*}}}*/
+//
+int GetIndexOfDot(vector<string> s){
+	int len=s.size();
+	for(int i=0;i<len;i++){
+		if(s[i]==".")return i;
+	}
+	return -1;
+}
+bool IsTerminal(string s){
+	return Hash[s]>edge;
+}
+bool NotIn(pair<string,vector<string> > pro,vector<pair<string,vector<string> > > ret){
+	size_t size=ret.size();
+	for(size_t i=0;i<size;i++){
+		if(ret[i].first==pro.first){
+			size_t size1=pro.second.size();
+			size_t size2=ret[i].second.size();
+			bool same=true;
+			if(size1==size2){
+				for(size_t t=0;t<size1;t++){
+					if(pro.second[t]!=ret[i].second[t]){
+						same=false;
+						break;
+					}
+				}
+			}
+			if(same)return false;
+		}
+	}
+	return true;
+}
+#define SET vector<pair<string,vector<string> > >
+vector<pair<string,vector<string> > > CLOSURE (SET I){
+	vector<pair<string,vector<string> > > ret;
+	ret.clear();
+	size_t st=I.size();
+	for(size_t i=0;i<st;i++){
+		ret.pb(I[i]);
+	}
+	st=0;
+	int len=projects.size();
+	bool change=false;
+	while(st<ret.size()||change){
+		change=false;
+		int dot=GetIndexOfDot(ret[st].second);
+		if(dot==(int)ret[st].second.size()-1){
+			st++;
+			continue;
+		}
+		string next=ret[st].second[dot+1];
+		if(IsTerminal(next)){
+			st++;
+			continue;
+		}
+		for(int i=0;i<len;i++){
+			if(projects[i].first==next){
+				if(NotIn(projects[i],ret)){
+					ret.pb(projects[i]);
+					change=true;
+				}
+			}
+		}
+		st++;
+	}
+	return ret;
+}
+SET GO(SET I,string X){
+	SET ans;
+	ans.clear();
+	size_t size=I.size();
+	for(size_t i=0;i<size;i++){
+		size_t len=I[i].second.size();
+		size_t dot=GetIndexOfDot(I[i].second);
+		if(dot==len-1){
+			continue;
+		}
+		vector<string> newright;
+		newright.clear();
+		for(size_t j=0;j<dot;j++){
+			newright.pb(I[i].second[j]);
+		}
+		newright.pb(I[i].second[dot+1]);
+		newright.pb(".");
+		for(size_t j=dot+2;j<size;j++){
+			newright.pb(I[i].second[j]);
+		}
+		
+		ans.pb(mp(I[i].first,newright));
+	}
+	return CLOSURE(ans);
+
+}
+vector<SET> Union;
+bool AlreadyIn(SET I){
+	size_t len=Union.size();
+	size_t size2=I.size();
+	for(size_t i=0;i<len;i++){
+		bool same=true;
+		size_t size1=Union[i].size();
+		if(size1!=size2)continue;
+		for(size_t j=0;j<size1;j++){
+			if(Union[i][j]!=I[j]){
+				same=false;
+				break;
+			}
+		}
+		if(same)return true;
+	}
+	return false;
+}
+void GetDFA(){
+	Union.clear();
+	SET start;
+	start.clear();
+	vector<string> righttmp;
+	righttmp.clear();
+	righttmp.pb(".");
+	righttmp.pb("Yao");
+	start.pb(mp("Yao'",righttmp));
+	start=CLOSURE(start);
+	Union.pb(start);
+	//
+}
+//test CLOSURE function
+void test(){
+	pair<string,vector<string> > I;
+	I.first="Yao'";
+	I.second.clear();
+	I.second.pb(".");
+	I.second.pb("Yao");
+	SET S;
+	S.clear();
+	S.pb(I);
+	vector<pair<string,vector<string> > > ret=GO(S,"Yao");
+	size_t size=ret.size();
+	cout<<"start"<<endl;
+	for(size_t i=0;i<size;i++){
+		cout<<ret[i].first<<" => ";
+		size_t t=ret[i].second.size();
+		for(size_t j=0;j<t;j++){
+			cout<<ret[i].second[j]<<' ';
+		}
+		cout<<endl;
+	}
 }
 int main(){
 	ini();
 	GetProduction();
-	set<int> ans;
-	ans.clear();
-	ans=First(Hash["id"]);
-	set<int>::iterator it=ans.begin();
-	cout<<"SDFSDFSDF   "<<ans.size()<<endl;
-	for(;it!=ans.end();it++){
-		cout<<*it<<endl;
-	}
+	GetProjects();
+///	PrintProjects();
+	test();
+//PrintProduction();
 	return 0;
 }

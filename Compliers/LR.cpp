@@ -115,8 +115,7 @@ inline void FillTable(ifstream &input){
 				tmp=tmp*10+s[i]-'0';
 			}
 			ans.pb(tmp);
-		}
-		else if(isdigit(s[11])){
+		}else if(isdigit(s[11])){
 			for(int i=11;i<len;i++){
 				if(s.substr(i,5)=="</td>")break;
 				tmp=tmp*10+s[i]-'0';
@@ -177,18 +176,6 @@ inline int Parse(){
 			FillTable(input);
 		}
 	}
-	/*
-	 * debug
-	ofstream output("out.txt");
-	int size=action.size();
-	for(int i=0;i<size;i++){
-		for(int j=0;j<action[i].size();j++){
-			output<<action[i][j]<<' ';
-		}
-		output<<endl;
-	}
-	output.close();
-	*/
 	input.close();
 	return 0;
 }
@@ -262,11 +249,10 @@ inline void Gao(const vector<int> &s){
 			s2.push(id);
 			id=GetNonTID(spf);
 			s1.push(go[TopState][id]);
-		}
-		else if(NextOp==Acc){
+		}else if(NextOp==Acc){
 			cout<<"Accepted"<<endl;
 			return;
-		}else {
+		}else{
 		//	return;
 	        id=GetId("semic");
 			NextOp=action[TopState][id];
@@ -291,9 +277,6 @@ inline void Gao(const vector<int> &s){
 				s2.push(id);
 				
 			}
-	//		else return;
-			//HandelError();
-			//return;
 		}
 	}
 }

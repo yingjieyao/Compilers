@@ -168,14 +168,11 @@ void Print(string &s) {
     int type=isReal(s);
     if(isKey(s)) {
     	Word.pb(mp(M2Num[s],s));
-    }
-    else if(isInteger(s)){
+    }else if(isInteger(s)){
     	Word.pb(mp(M2Num["Integer"],"Integer"));
-    }
-    else if(type==isreal){
+    }else if(type==isreal){
     	Word.pb(mp(M2Num["Double"],"Double"));//?????
-    }
-    else if(type==dotError&&s.length()>1){
+    }else if(type==dotError&&s.length()>1){
         cout<<s<<' '<<"Dot ERROR "<<Column<<endl;
     }else{
             if(!isalpha(s[0])&&s[0]!='_'){
@@ -202,14 +199,14 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
         for(int i=0; s[i]; i++) {
             if(s[i]==' ') {
                 if(tmp.length())Print(tmp);
-            } else if(s[i]=='('||s[i]==')'||
+            }else if(s[i]=='('||s[i]==')'||
                       s[i]==','||s[i]==';'||s[i]=='['||s[i]==']'||s[i]=='\''||s[i]=='{'||
                       s[i]=='}'||s[i]=='$') {
                 if(tmp.length()) Print(tmp);
                 tmp="";
                 tmp=tmp+s[i];
                 Print(tmp);
-            } else if(s[i]=='<'||s[i]=='>') {
+            }else if(s[i]=='<'||s[i]=='>') {
                 if(tmp.length())Print(tmp);
                 if(s[i+1]&&s[i+1]=='=') {
                     tmp="";
@@ -252,7 +249,7 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
                     tmp+=s[++i];
                 }
                 Print(tmp);
-            } else if(s[i]=='*') {
+            }else if(s[i]=='*') {
                 if(tmp.length())Print(tmp);
                 tmp="";
                 tmp+=s[i];
@@ -260,7 +257,7 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
                     tmp+='*';
                 }
                 Print(tmp);
-            } else if(s[i]=='\"') {
+            }else if(s[i]=='\"') {
                 if(tmp.length())Print(tmp);
                 tmp="";
                 tmp+=s[i];
@@ -269,7 +266,7 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
                 }
                 tmp+=s[++i];
                 Print(tmp);
-            } else if(isdigit(s[i])) {
+            }else if(isdigit(s[i])) {
                 //handle negative 
                 if(tmp.length())Print(tmp);
                 tmp="";
@@ -282,7 +279,7 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
                 int len=tmp.length();
                 if(tmp[len-1]=='.')i--,tmp=tmp.substr(0,len-1);
                 Print(tmp);
-            } else if(isalpha(s[i])||s[i]=='_') {
+            }else if(isalpha(s[i])||s[i]=='_') {
                 if(tmp.length())Print(tmp);
                 tmp="";
                 tmp+=s[i];
