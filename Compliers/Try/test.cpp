@@ -10,25 +10,33 @@
 using namespace std;
 #define pb push_back
 #define mp make_pair
+#define ACC 0x7fffffff
+#define SET vector<pair<string,vector<string> > >
+
 vector<pair<string,vector<string> > > production;
 vector<pair<string,vector<string> > > projects;
 map<string,int> Hash;
+map<string,int> Terminal;
+map<string,int> NonTerminal;
 vector<set<int> > FIRST;
 vector<vector<int> > action,go;
-int keycnt;
-int edge;
+vector<SET> Union;
+int tercnt;
+int nontercnt;
+
 inline void ini(){
-	Hash.clear();
-	keycnt=1;
+	Terminal.clear();
+	NonTerminal.clear();
+	//
 	action.clear();
 	go.clear();
+	//
 	int len=FIRST.size();
 	for(int i=0;i<len;i++){
 		FIRST[i].clear();
 	}
 }
- // split string by space 
- // and return the vector
+ // split string by space and return the vector
 inline vector<string> split(const string &s){
 	vector<string> ans;
 	ans.clear();
@@ -47,28 +55,29 @@ inline vector<string> split(const string &s){
 	return ans;
 }
 // just for read all the productions from files
-inline void GetProduction(){/*{{{*/
+inline void GetProduction(){
 	string s;
 	production.clear();
 	vector<string> T;
 	T.clear();
 	production.pb(mp("",T));
-	ifstream in("LR.txt");
+	ifstream in("LR1.txt");
+// the first line , terminal marks
 	getline(in,s);
 	T=split(s);
 	size_t len=T.size();
 	for(size_t i=0;i<len;i++){
-		Hash[T[i]]=keycnt++;
+		Terminal[T[i]]=tercnt++;
 	}
-	edge=len;
+// the second line, non-terminal marks
 	getline(in,s);
+	T=split(s);
 	len=T.size();
 	for(size_t i=0;i<len;i++){
-		Hash[T[i]]=keycnt++;
+		NonTerminal[T[i]]=nontercnt++;
 	}
-	// get production
+//  productions here
 	while(getline(in,s)){
-		//cout<<s<<endl;
 		int len=s.length();
 		string first="",second="";
 		for(int i=0;i<len;i++){
@@ -88,15 +97,14 @@ inline void GetProduction(){/*{{{*/
 		production.pb(mp(first,right));
 	}
 	in.close();
-}/*}}}*/
-//get all the projects
+}
+//get all the projects, which means add dots to productions
 void GetProjects(){
 	size_t len=production.size();
 	for(size_t i=1;i<len;i++){
 		string left=production[i].first;
 		vector<string> ans=(production[i].second);
 		size_t size=ans.size();
-		
 		vector<string> newright;
 		newright.clear();
 		newright.pb(".");
@@ -120,6 +128,28 @@ void GetProjects(){
 		}
 	}
 }
+//give a project just like S => .SS
+//return S => SS 's id in productions
+//means which production it comes from
+int IndexOfProjects(pair<string,vector<string> > I){
+	size_t size1=production.size();
+	pair<string,vector<string> > tmp;
+	vector<string> right;
+	right.clear();
+	size_t size2=I.second.size();
+	for(size_t i=0;i<size2;i++){
+		if(I.second[i]!="."){
+			right.pb(I.second[i]);
+		}
+	}
+	tmp=mp(I.first,right);
+	for(size_t i=0;i<size1;i++){
+		pair<string,vector<string> > tmp2;
+		tmp2=production[i];
+		if(tmp==tmp2)return i;
+	}
+	return -1;
+}
 void PrintProjects(){
 	size_t len=projects.size();
 	for(size_t i=0;i<len;i++){
@@ -134,7 +164,7 @@ void PrintProjects(){
 	}
 }
 //
-void PrintProduction(){/*{{{*//*{{{*/
+void PrintProduction(){
 	size_t len=production.size();
 	for(size_t i=0;i<len;i++){
 		cout<<production[i].first<<" => ";
@@ -144,7 +174,7 @@ void PrintProduction(){/*{{{*//*{{{*/
 		}
 		cout<<endl;
 	}
-}/*}}}*//*}}}*/
+}
 //
 int GetIndexOfDot(vector<string> s){
 	int len=s.size();
@@ -154,8 +184,9 @@ int GetIndexOfDot(vector<string> s){
 	return -1;
 }
 bool IsTerminal(string s){
-	return Hash[s]>edge;
+	return Terminal.find(s)!=Terminal.end();
 }
+// judge whether a projects is in the union 
 bool NotIn(pair<string,vector<string> > pro,vector<pair<string,vector<string> > > ret){
 	size_t size=ret.size();
 	for(size_t i=0;i<size;i++){
@@ -171,14 +202,15 @@ bool NotIn(pair<string,vector<string> > pro,vector<pair<string,vector<string> > 
 					}
 				}
 			}
+			else continue;
 			if(same)return false;
 		}
 	}
 	return true;
 }
-#define SET vector<pair<string,vector<string> > >
-vector<pair<string,vector<string> > > CLOSURE (SET I){
-	vector<pair<string,vector<string> > > ret;
+//
+SET CLOSURE (SET I){
+	SET ret;
 	ret.clear();
 	size_t st=I.size();
 	for(size_t i=0;i<st;i++){
@@ -201,6 +233,7 @@ vector<pair<string,vector<string> > > CLOSURE (SET I){
 		}
 		for(int i=0;i<len;i++){
 			if(projects[i].first==next){
+				if(projects[i].second[0]!=".")continue;
 				if(NotIn(projects[i],ret)){
 					ret.pb(projects[i]);
 					change=true;
@@ -211,8 +244,10 @@ vector<pair<string,vector<string> > > CLOSURE (SET I){
 	}
 	return ret;
 }
+//
 SET GO(SET I,string X){
 	SET ans;
+	if(X=="")return I;
 	ans.clear();
 	size_t size=I.size();
 	for(size_t i=0;i<size;i++){
@@ -221,6 +256,7 @@ SET GO(SET I,string X){
 		if(dot==len-1){
 			continue;
 		}
+		if(I[i].second[dot+1]!=X)continue;
 		vector<string> newright;
 		newright.clear();
 		for(size_t j=0;j<dot;j++){
@@ -228,7 +264,7 @@ SET GO(SET I,string X){
 		}
 		newright.pb(I[i].second[dot+1]);
 		newright.pb(".");
-		for(size_t j=dot+2;j<size;j++){
+		for(size_t j=dot+2;j<len;j++){
 			newright.pb(I[i].second[j]);
 		}
 		
@@ -237,8 +273,8 @@ SET GO(SET I,string X){
 	return CLOSURE(ans);
 
 }
-vector<SET> Union;
-bool AlreadyIn(SET I){
+//in tot union,set i has already in the set and is not a new state
+int AlreadyIn(SET I){
 	size_t len=Union.size();
 	size_t size2=I.size();
 	for(size_t i=0;i<len;i++){
@@ -251,51 +287,134 @@ bool AlreadyIn(SET I){
 				break;
 			}
 		}
-		if(same)return true;
+		if(same)return (int)i;
 	}
-	return false;
+	return -1; 
 }
-void GetDFA(){
+//debug
+void debug(pair<string,vector<string> > I){
+	size_t len=I.second.size();
+	cout<<I.first<<" => ";
+	for(size_t i=0;i<len;i++){
+		cout<<I.second[i]<<' ';
+	}
+	cout<<endl;
+}
+void debug(SET I){
+	size_t len=I.size();
+	for(size_t i=0;i<len;i++){
+		debug(I[i]);
+	}
+}
+void debug(vector<SET> I){
+	size_t size=I.size();
+	for(size_t i=0;i<size;i++){
+		cout<<"I"<<i<<endl;
+		debug(I[i]);
+		cout<<endl;
+	}
+}
+void debug(){
+	cout<<"----production----"<<endl;
+	size_t len=production.size();
+	for(size_t i=0;i<len;i++){
+		cout<<production[i].first<<" => ";
+		size_t len2=production[i].second.size();
+		for(size_t j=0;j<len2;j++){
+			cout<<production[i].second[j]<<' ';
+		}
+		cout<<endl;
+	}
+	cout<<endl<<endl<<"----projects----"<<endl;
+	len=projects.size();
+	for(size_t i=0;i<len;i++){
+		cout<<projects[i].first<<" => ";
+		size_t len2=projects[i].second.size();
+		for(size_t j=0;j<len2;j++){
+			cout<<projects[i].second[j]<<' ';
+		}
+		cout<<endl;
+	}
+	cout<<endl<<endl<<endl;
+}
+void debug(vector<vector<int> > A){
+	size_t len=A.size();
+	for(size_t i=0;i<len;i++){
+		size_t len2=A[i].size();
+		for(size_t j=0;j<len2;j++){
+			cout<<A[i][j]<<' ';
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+}
+//Create action and goto table
+void GetActionGoto(){
 	Union.clear();
 	SET start;
 	start.clear();
+//  get ready for the first STATE
 	vector<string> righttmp;
 	righttmp.clear();
+//	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	righttmp.pb(".");
-	righttmp.pb("Yao");
-	start.pb(mp("Yao'",righttmp));
+	righttmp.pb("S");
+	start.pb(mp("S'",righttmp));
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	start=CLOSURE(start);
+	//I0
 	Union.pb(start);
+	//start from the nth closure and then goto get more closures
+	//when find a new closure,add it to SET add update the action table
 	//
-}
-//test CLOSURE function
-void test(){
-	pair<string,vector<string> > I;
-	I.first="Yao'";
-	I.second.clear();
-	I.second.pb(".");
-	I.second.pb("Yao");
-	SET S;
-	S.clear();
-	S.pb(I);
-	vector<pair<string,vector<string> > > ret=GO(S,"Yao");
-	size_t size=ret.size();
-	cout<<"start"<<endl;
-	for(size_t i=0;i<size;i++){
-		cout<<ret[i].first<<" => ";
-		size_t t=ret[i].second.size();
-		for(size_t j=0;j<t;j++){
-			cout<<ret[i].second[j]<<' ';
+	vector<int> azero,gzero;
+	azero.clear();
+	gzero.clear();
+	for(int i=0;i<tercnt;i++)azero.pb(0);
+	for(int i=0;i<nontercnt;i++)gzero.pb(0);
+	size_t totsize=Union.size();
+	for(size_t i=0;i<totsize;i++){
+		size_t partsize=Union[i].size();
+		action.pb(azero);
+		go.pb(gzero);
+		for(size_t j=0;j<partsize;j++){
+			pair<string,vector<string> > curr=Union[i][j];
+			if("S"==curr.second[0]){
+				action[i][Terminal["$"]]=ACC;
+				continue;
+			}
+
+			int tindex=IndexOfProjects(curr);
+			size_t dot=GetIndexOfDot(curr.second);
+			if(dot==curr.second.size()-1){
+				for(int key=0;key<tercnt;key++)action[i][key]=-tindex;
+				continue;
+			}
+			string tmp=curr.second[dot+1];
+			SET next=GO(Union[i],tmp);
+			int index=AlreadyIn(next);
+			if(index==-1){
+				Union.pb(next);
+				index=Union.size()-1;
+				totsize=Union.size();
+			}
+			if(IsTerminal(tmp)){
+				action[i][Terminal[tmp]]=tindex;	
+			}else{
+				go[i][NonTerminal[tmp]]=index;
+			}
 		}
-		cout<<endl;
 	}
 }
 int main(){
 	ini();
 	GetProduction();
 	GetProjects();
-///	PrintProjects();
-	test();
-//PrintProduction();
+	GetActionGoto();
+	debug(Union);
+	cout<<"====action===="<<endl;
+	debug(action);
+	cout<<"====go===="<<endl;
+	debug(go);
 	return 0;
 }
