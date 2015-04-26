@@ -1,3 +1,10 @@
+// in this program 
+// we need productions,marks,and goto & action table
+// should change  data-structure stored production
+// should split terminal and non-terminal marks' map to two part just like Try/test.cpp
+// should change many things
+// oh, fuck 
+// so boring lab-class
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -179,8 +186,11 @@ inline int Parse(){
 	input.close();
 	return 0;
 }
+//=================begin here============================
+//!!!!!!!!!!!!!   do not change again   !!!!!!!!!!!!!!!!!
+//before all of this
+//should contain production,marks's map,action and goto table
 //initilalize 
-//
 inline void Init(){
 	while(!s1.empty())s1.pop();
 	while(!s2.empty())s2.pop();

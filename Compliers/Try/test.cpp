@@ -18,22 +18,87 @@ vector<pair<string,vector<string> > > projects;
 map<string,int> Hash;
 map<string,int> Terminal;
 map<string,int> NonTerminal;
-vector<set<int> > FIRST;
 vector<vector<int> > action,go;
 vector<SET> Union;
+map<string,vector<string> > FIRST,FOLLOW;
+//the file which stores the productoions
+string file="LR1.txt";
 int tercnt;
 int nontercnt;
 
-inline void ini(){
+inline void Ini(){
 	Terminal.clear();
 	NonTerminal.clear();
+	FIRST.clear();
+	FOLLOW.clear();
 	//
 	action.clear();
 	go.clear();
 	//
-	int len=FIRST.size();
-	for(int i=0;i<len;i++){
-		FIRST[i].clear();
+}
+
+inline bool IsTerminal(string s){
+	return Terminal.find(s)!=Terminal.end();
+}
+//get first set
+inline void GetFirst(const string & s){
+	vector<string> tmp;
+	if(FIRST.find(s)!=FIRST.end())return;
+	tmp.clear();
+//  if s is a terminal mark
+	if(IsTerminal(s)){
+		tmp.pb(s);
+		FIRST[s]=tmp;
+		return;
+	}
+	bool HasNull=false;
+	size_t SizeOfPro=production.size();
+	for(size_t i=0;i<SizeOfPro;i++){
+		pair<string,vector<string> > pro=production[i];
+		if(pro.first!=s)continue;
+		string RightFirst=pro.second[0];
+		size_t RightSize=pro.second.size();
+		if(RightFirst=="")HasNull=true;
+		else if(IsTerminal(RightFirst)){
+			tmp.pb(RightFirst);
+		}else{
+			size_t st=0;
+			bool HasE=true;
+			while(HasE||st<RightSize){
+				HasE=false;
+				string Right=pro.second[i];
+				if(FIRST.find(Right)==FIRST.end())
+					GetFirst(Right);
+				vector<string> Rfirst=FIRST[Right];
+				size_t RfirstSize=Rfirst.size();
+				for(size_t R=0;R<RfirstSize;R++){
+					if(Rfirst[R]!=""){
+						tmp.pb(Rfirst[R]);
+					}else HasE=true;
+				}
+				if(st==RightSize){
+					if(HasE){
+						tmp.pb("");
+					}
+				}
+				st++;			
+			}
+		
+		}
+	}
+	if(HasNull)tmp.pb("");
+	sort(tmp.begin(),tmp.end());
+	tmp.erase(unique(tmp.begin(),tmp.end()),tmp.end());
+	FIRST[s]=tmp;
+}
+inline void GetFirst(){
+	FIRST.clear();
+	map<string,int>::iterator it;
+	for(it=Terminal.begin();it!=Terminal.end();it++){
+		GetFirst(it->first);
+	}
+	for(it=NonTerminal.begin();it!=NonTerminal.end();it++){
+		GetFirst(it->first);
 	}
 }
  // split string by space and return the vector
@@ -64,6 +129,7 @@ inline void GetProduction(){
 	ifstream in("LR1.txt");
 // the first line , terminal marks
 	getline(in,s);
+	cout<<s<<endl;
 	T=split(s);
 	size_t len=T.size();
 	for(size_t i=0;i<len;i++){
@@ -71,13 +137,16 @@ inline void GetProduction(){
 	}
 // the second line, non-terminal marks
 	getline(in,s);
+	cout<<s<<endl;
 	T=split(s);
 	len=T.size();
 	for(size_t i=0;i<len;i++){
 		NonTerminal[T[i]]=nontercnt++;
 	}
+	cout<<"done"<<endl;
 //  productions here
 	while(getline(in,s)){
+		cout<<s<<endl;
 		int len=s.length();
 		string first="",second="";
 		for(int i=0;i<len;i++){
@@ -99,7 +168,7 @@ inline void GetProduction(){
 	in.close();
 }
 //get all the projects, which means add dots to productions
-void GetProjects(){
+inline void GetProjects(){
 	size_t len=production.size();
 	for(size_t i=1;i<len;i++){
 		string left=production[i].first;
@@ -131,7 +200,7 @@ void GetProjects(){
 //give a project just like S => .SS
 //return S => SS 's id in productions
 //means which production it comes from
-int IndexOfProjects(pair<string,vector<string> > I){
+inline int IndexOfProjects(pair<string,vector<string> > I){
 	size_t size1=production.size();
 	pair<string,vector<string> > tmp;
 	vector<string> right;
@@ -150,7 +219,7 @@ int IndexOfProjects(pair<string,vector<string> > I){
 	}
 	return -1;
 }
-void PrintProjects(){
+inline void PrintProjects(){
 	size_t len=projects.size();
 	for(size_t i=0;i<len;i++){
 		cout<<projects[i].first<<' ';
@@ -164,7 +233,7 @@ void PrintProjects(){
 	}
 }
 //
-void PrintProduction(){
+inline void PrintProduction(){
 	size_t len=production.size();
 	for(size_t i=0;i<len;i++){
 		cout<<production[i].first<<" => ";
@@ -176,18 +245,15 @@ void PrintProduction(){
 	}
 }
 //
-int GetIndexOfDot(vector<string> s){
+inline int GetIndexOfDot(vector<string> s){
 	int len=s.size();
 	for(int i=0;i<len;i++){
 		if(s[i]==".")return i;
 	}
 	return -1;
 }
-bool IsTerminal(string s){
-	return Terminal.find(s)!=Terminal.end();
-}
 // judge whether a projects is in the union 
-bool NotIn(pair<string,vector<string> > pro,vector<pair<string,vector<string> > > ret){
+inline bool NotIn(pair<string,vector<string> > pro,SET ret){
 	size_t size=ret.size();
 	for(size_t i=0;i<size;i++){
 		if(ret[i].first==pro.first){
@@ -209,7 +275,7 @@ bool NotIn(pair<string,vector<string> > pro,vector<pair<string,vector<string> > 
 	return true;
 }
 //
-SET CLOSURE (SET I){
+inline SET CLOSURE (SET I){
 	SET ret;
 	ret.clear();
 	size_t st=I.size();
@@ -245,7 +311,7 @@ SET CLOSURE (SET I){
 	return ret;
 }
 //
-SET GO(SET I,string X){
+inline SET GO(SET I,string X){
 	SET ans;
 	if(X=="")return I;
 	ans.clear();
@@ -274,7 +340,7 @@ SET GO(SET I,string X){
 
 }
 //in tot union,set i has already in the set and is not a new state
-int AlreadyIn(SET I){
+inline int AlreadyIn(SET I){
 	size_t len=Union.size();
 	size_t size2=I.size();
 	for(size_t i=0;i<len;i++){
@@ -292,7 +358,7 @@ int AlreadyIn(SET I){
 	return -1; 
 }
 //debug
-void debug(pair<string,vector<string> > I){
+inline void debug(pair<string,vector<string> > I){
 	size_t len=I.second.size();
 	cout<<I.first<<" => ";
 	for(size_t i=0;i<len;i++){
@@ -300,13 +366,13 @@ void debug(pair<string,vector<string> > I){
 	}
 	cout<<endl;
 }
-void debug(SET I){
+inline void debug(SET I){
 	size_t len=I.size();
 	for(size_t i=0;i<len;i++){
 		debug(I[i]);
 	}
 }
-void debug(vector<SET> I){
+inline void debug(vector<SET> I){
 	size_t size=I.size();
 	for(size_t i=0;i<size;i++){
 		cout<<"I"<<i<<endl;
@@ -314,7 +380,7 @@ void debug(vector<SET> I){
 		cout<<endl;
 	}
 }
-void debug(){
+inline void debug(){
 	cout<<"----production----"<<endl;
 	size_t len=production.size();
 	for(size_t i=0;i<len;i++){
@@ -337,7 +403,7 @@ void debug(){
 	}
 	cout<<endl<<endl<<endl;
 }
-void debug(vector<vector<int> > A){
+inline void debug(vector<vector<int> > A){
 	size_t len=A.size();
 	for(size_t i=0;i<len;i++){
 		size_t len2=A[i].size();
@@ -348,8 +414,19 @@ void debug(vector<vector<int> > A){
 	}
 	cout<<endl;
 }
-//Create action and goto table
-void GetActionGoto(){
+inline void debug(map<string,vector<string> > M){
+	map<string,vector<string> >::iterator it;
+	for(it=M.begin();it!=M.end();it++){
+		cout<<it->first<<' ';
+		size_t size=it->second.size();
+		for(size_t i=0;i<size;i++){
+			cout<<it->second[i]<<' ';
+		}
+		cout<<"!!size  "<<size<<' '<<endl;
+	}
+}
+//  Create action and goto table
+inline void GetActionGoto(){
 	Union.clear();
 	SET start;
 	start.clear();
@@ -366,7 +443,6 @@ void GetActionGoto(){
 	Union.pb(start);
 	//start from the nth closure and then goto get more closures
 	//when find a new closure,add it to SET add update the action table
-	//
 	vector<int> azero,gzero;
 	azero.clear();
 	gzero.clear();
@@ -407,7 +483,7 @@ void GetActionGoto(){
 	}
 }
 int main(){
-	ini();
+	Ini();
 	GetProduction();
 	GetProjects();
 	GetActionGoto();
@@ -416,5 +492,7 @@ int main(){
 	debug(action);
 	cout<<"====go===="<<endl;
 	debug(go);
+	GetFirst();
+	debug(FIRST);
 	return 0;
 }
