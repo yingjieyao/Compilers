@@ -168,6 +168,7 @@ inline void GetProduction(){
 	tmp=tmp.substr(0,length-1);
 	T[len-1]=tmp;
 	for(size_t i=0;i<len;i++){
+		cout<<T[i]<<endl;
 		NonTerminal[T[i]]=nontercnt++;
 	}
 //  productions here

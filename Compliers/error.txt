@@ -1,7 +1,7 @@
 func main(){
 	int a,b,c semic
-	for semic semic {
-	}semic
+	for  semic {
+	}
 	if a<b {
 	}semic
 }

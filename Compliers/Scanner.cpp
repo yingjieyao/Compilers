@@ -41,10 +41,10 @@ int IDcnt;
 string key[KeySize]={"id","char","bool","int","double","call","return",
 			  "Integer","Double","Char","Bool","func","for","semic",
 			  ",","(",")","{","}","+","-","*","/","=","and","not","or",
-			  ">","<",">=","<=","==","true","false","if","elsif","else","$"
+			  ">","<",">=","<=","==","true","false","if","elsif","else","#"
 };
 
-void Ini() {
+void ScannerIni() {
     IDcnt=0;
 	MAP.clear();
     ID.clear();
@@ -56,7 +56,8 @@ void Ini() {
 int getId(string s){
     if(ID.find(s)==ID.end()){
         ID[s]=++IDcnt;
-    }else return ID[s];
+    }
+	return ID[s];
 }
 
 // judge whether a word is key 
@@ -189,7 +190,7 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
     // freopen("in.txt","r",stdin);
     // freopen("out.txt","w",stdout);
 	ifstream input(inputfile);
-    Ini();
+    ScannerIni();
     string s;
     Column=0;
     Word.clear();
@@ -288,6 +289,6 @@ vector<pair<int,string> > Scanner(char inputfile[]) {
             }
         }
     }
-	Word.pb(mp(M2Num["$"],"$"));
+	Word.pb(mp(M2Num["#"],"#"));
     return Word;
 }

@@ -7,166 +7,16 @@
 #include <string>
 #include <cstring>
 #include <set>
+#include "common.cpp"
 using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ACC 0x7fffffff
 #define SET vector<pair<string,vector<string> > >
 
-vector<pair<string,vector<string> > > production;
 vector<pair<string,vector<string> > > projects;
-map<string,int> Hash;
-map<string,int> Terminal;
-map<string,int> NonTerminal;
-vector<vector<int> > action,go;
 vector<SET> Union;
-map<string,vector<string> > FIRST,FOLLOW;
-//the file which stores the productoions
-string file="LR1.txt";
-int tercnt;
-int nontercnt;
 
-inline void Ini(){
-	Terminal.clear();
-	NonTerminal.clear();
-	FIRST.clear();
-	FOLLOW.clear();
-	//
-	action.clear();
-	go.clear();
-	//
-}
-
-inline bool IsTerminal(string s){
-	return Terminal.find(s)!=Terminal.end();
-}
-//get first set
-inline void GetFirst(const string & s){
-	vector<string> tmp;
-	if(FIRST.find(s)!=FIRST.end())return;
-	tmp.clear();
-//  if s is a terminal mark
-	if(IsTerminal(s)){
-		tmp.pb(s);
-		FIRST[s]=tmp;
-		return;
-	}
-	bool HasNull=false;
-	size_t SizeOfPro=production.size();
-	for(size_t i=0;i<SizeOfPro;i++){
-		pair<string,vector<string> > pro=production[i];
-		if(pro.first!=s)continue;
-		string RightFirst=pro.second[0];
-		size_t RightSize=pro.second.size();
-		if(RightFirst=="")HasNull=true;
-		else if(IsTerminal(RightFirst)){
-			tmp.pb(RightFirst);
-		}else{
-			size_t st=0;
-			bool HasE=true;
-			while(HasE||st<RightSize){
-				HasE=false;
-				string Right=pro.second[i];
-				if(FIRST.find(Right)==FIRST.end())
-					GetFirst(Right);
-				vector<string> Rfirst=FIRST[Right];
-				size_t RfirstSize=Rfirst.size();
-				for(size_t R=0;R<RfirstSize;R++){
-					if(Rfirst[R]!=""){
-						tmp.pb(Rfirst[R]);
-					}else HasE=true;
-				}
-				if(st==RightSize){
-					if(HasE){
-						tmp.pb("");
-					}
-				}
-				st++;			
-			}
-		
-		}
-	}
-	if(HasNull)tmp.pb("");
-	sort(tmp.begin(),tmp.end());
-	tmp.erase(unique(tmp.begin(),tmp.end()),tmp.end());
-	FIRST[s]=tmp;
-}
-inline void GetFirst(){
-	FIRST.clear();
-	map<string,int>::iterator it;
-	for(it=Terminal.begin();it!=Terminal.end();it++){
-		GetFirst(it->first);
-	}
-	for(it=NonTerminal.begin();it!=NonTerminal.end();it++){
-		GetFirst(it->first);
-	}
-}
- // split string by space and return the vector
-inline vector<string> split(const string &s){
-	vector<string> ans;
-	ans.clear();
-	int len=s.length();
-	string tmp="";
-	for(int i=0;i<len;i++){
-		if(s[i]==' '){
-			if(tmp.size())
-			ans.pb(tmp);
-			tmp="";
-		}else {
-			tmp+=s[i];
-		}
-	}
-	if(tmp.length())ans.pb(tmp);
-	return ans;
-}
-// just for read all the productions from files
-inline void GetProduction(){
-	string s;
-	production.clear();
-	vector<string> T;
-	T.clear();
-	production.pb(mp("",T));
-	ifstream in("LR1.txt");
-// the first line , terminal marks
-	getline(in,s);
-	cout<<s<<endl;
-	T=split(s);
-	size_t len=T.size();
-	for(size_t i=0;i<len;i++){
-		Terminal[T[i]]=tercnt++;
-	}
-// the second line, non-terminal marks
-	getline(in,s);
-	cout<<s<<endl;
-	T=split(s);
-	len=T.size();
-	for(size_t i=0;i<len;i++){
-		NonTerminal[T[i]]=nontercnt++;
-	}
-	cout<<"done"<<endl;
-//  productions here
-	while(getline(in,s)){
-		cout<<s<<endl;
-		int len=s.length();
-		string first="",second="";
-		for(int i=0;i<len;i++){
-			if(s[i]==' ')break;
-			first+=s[i];
-		}
-		for(int i=0;i<len;i++){
-			if(s[i]=='='&&s[i+1]=='>'){
-				int j=i+3;
-				while(j<len&&s[j]!=';'){
-					second+=s[j++];
-				}
-				break;
-			}
-		}
-		vector<string> right=split(second);
-		production.pb(mp(first,right));
-	}
-	in.close();
-}
 //get all the projects, which means add dots to productions
 inline void GetProjects(){
 	size_t len=production.size();
@@ -232,26 +82,6 @@ inline void PrintProjects(){
 		cout<<endl;
 	}
 }
-//
-inline void PrintProduction(){
-	size_t len=production.size();
-	for(size_t i=0;i<len;i++){
-		cout<<production[i].first<<" => ";
-		int len2=production[i].second.size();
-		for(int j=0;j<len2;j++){
-			cout<<production[i].second[j]<<" ";
-		}
-		cout<<endl;
-	}
-}
-//
-inline int GetIndexOfDot(vector<string> s){
-	int len=s.size();
-	for(int i=0;i<len;i++){
-		if(s[i]==".")return i;
-	}
-	return -1;
-}
 // judge whether a projects is in the union 
 inline bool NotIn(pair<string,vector<string> > pro,SET ret){
 	size_t size=ret.size();
@@ -278,11 +108,10 @@ inline bool NotIn(pair<string,vector<string> > pro,SET ret){
 inline SET CLOSURE (SET I){
 	SET ret;
 	ret.clear();
-	size_t st=I.size();
-	for(size_t i=0;i<st;i++){
+	size_t tot=I.size();
+	for(size_t i=0;i<tot;i++)
 		ret.pb(I[i]);
-	}
-	st=0;
+	size_t st=0;
 	int len=projects.size();
 	bool change=false;
 	while(st<ret.size()||change){
@@ -358,28 +187,6 @@ inline int AlreadyIn(SET I){
 	return -1; 
 }
 //debug
-inline void debug(pair<string,vector<string> > I){
-	size_t len=I.second.size();
-	cout<<I.first<<" => ";
-	for(size_t i=0;i<len;i++){
-		cout<<I.second[i]<<' ';
-	}
-	cout<<endl;
-}
-inline void debug(SET I){
-	size_t len=I.size();
-	for(size_t i=0;i<len;i++){
-		debug(I[i]);
-	}
-}
-inline void debug(vector<SET> I){
-	size_t size=I.size();
-	for(size_t i=0;i<size;i++){
-		cout<<"I"<<i<<endl;
-		debug(I[i]);
-		cout<<endl;
-	}
-}
 inline void debug(){
 	cout<<"----production----"<<endl;
 	size_t len=production.size();
@@ -402,28 +209,6 @@ inline void debug(){
 		cout<<endl;
 	}
 	cout<<endl<<endl<<endl;
-}
-inline void debug(vector<vector<int> > A){
-	size_t len=A.size();
-	for(size_t i=0;i<len;i++){
-		size_t len2=A[i].size();
-		for(size_t j=0;j<len2;j++){
-			cout<<A[i][j]<<' ';
-		}
-		cout<<endl;
-	}
-	cout<<endl;
-}
-inline void debug(map<string,vector<string> > M){
-	map<string,vector<string> >::iterator it;
-	for(it=M.begin();it!=M.end();it++){
-		cout<<it->first<<' ';
-		size_t size=it->second.size();
-		for(size_t i=0;i<size;i++){
-			cout<<it->second[i]<<' ';
-		}
-		cout<<"!!size  "<<size<<' '<<endl;
-	}
 }
 //  Create action and goto table
 inline void GetActionGoto(){
@@ -464,6 +249,14 @@ inline void GetActionGoto(){
 			size_t dot=GetIndexOfDot(curr.second);
 			if(dot==curr.second.size()-1){
 				for(int key=0;key<tercnt;key++)action[i][key]=-tindex;
+				//
+				//====================SLR1===================
+				//vector<string> dfollow=FOLLOW[curr.first];
+				//size_t size =dfollow.size();
+				//for(size_t t=0;t<size;t++){
+				//	action[i][Terminal[dfollow[t]]=-tindex;
+				//}
+				//=====================SLR1 end==============
 				continue;
 			}
 			string tmp=curr.second[dot+1];
@@ -487,12 +280,8 @@ int main(){
 	GetProduction();
 	GetProjects();
 	GetActionGoto();
-	debug(Union);
 	cout<<"====action===="<<endl;
-	debug(action);
 	cout<<"====go===="<<endl;
-	debug(go);
 	GetFirst();
-	debug(FIRST);
 	return 0;
 }

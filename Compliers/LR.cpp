@@ -264,6 +264,8 @@ inline void Gao(const vector<int> &s){
 			return;
 		}else{
 		//	return;
+			cout<<"=====error====="<<endl;
+			return;
 	        id=GetId("semic");
 			NextOp=action[TopState][id];
 			if(NextOp<0){
@@ -293,7 +295,6 @@ inline void Gao(const vector<int> &s){
 
 int main(int argc,char *args[]){
 	vector<int> Out;
-	char s[]="test.txt";
 	vector<pair<int,string> > Ans=Scanner(args[1]);
 	int len=Ans.size();
 	Out.clear();
